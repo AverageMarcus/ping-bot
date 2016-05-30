@@ -1,14 +1,11 @@
 {
-  "name": "bot-test",
+  "name": "ping-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "An example Slack slash command bot",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "hapi": "^13.4.1"
   }
