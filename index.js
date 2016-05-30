@@ -7,7 +7,7 @@ const server = new Hapi.Server();
 server.connection({ port: process.env.PORT || 3000 });
 
 server.route({
-  method: 'GET',
+  method: 'POST',
   path: '/ping',
   handler: (request, reply) => {
     reply(JSON.stringify({
@@ -19,31 +19,33 @@ server.route({
 });
 
 server.route({
-  method: 'GET',
+  method: 'POST',
   path: '/tableflip',
   handler: (request, reply) => {
-    var parsed = url.parse(request.url, true);
-    var echoChannel = parsed.query.channel_id;
-    var slackURL = url.parse(parsed.query.response_url);
+    console.log(request.payload);
+    console.log(typeof request.payload);
+
+    let slackURL = url.parse(request.payload.response_url);
+    let echoChannel = request.payload.channel_id;
+    let usersText = request.payload.text.trim();
 
     let output = JSON.stringify({
-      channel: echoChannel,
-      response_type: "in_channel",
-      text: 'Test',
-      as_user: true,
-      attachments: []
+      token: request.payload.token,
+      channel: request.payload.channel_id,
+      text: `${usersText} ()`,
+      as_user: true
     });
 
-    var options = {
-      host: slackURL.host,
+    let options = {
+      host: 'slack.com',
+      path: '/api/chat.postMessage',
       method: 'POST',
-      path: slackURL.path,
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': output.length
       }
     };
-    var post = https.request(options, function(res) {
+    let post = https.request(options, function(res) {
       res.setEncoding('utf8');
       res.on('data', function(chunk) {
         console.log('response', chunk);
@@ -53,10 +55,7 @@ server.route({
     post.write(output);
     post.end();
 
-    reply(JSON.stringify({
-        response_type: "in_channel"
-      }))
-      .header('Content-Type', 'application/json');
+    reply();
   }
 });
 
